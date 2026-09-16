@@ -28,12 +28,12 @@ export default function Home() {
   const enter = (next: Chapter) => { setChapter(next); setMenuOpen(false); setReel(next === 'events' ? 'events' : next === 'film' ? 'documentary' : 'superTrailer'); };
 
   return <main className={`experience chapter-${chapter}`}>
-    <div className={`intro-curtain ${intro ? '' : 'gone'}`}><span>OAE</span></div>
+    <div className={`intro-curtain ${intro ? '' : 'gone'}`}><img className="intro-logo" src="/images/oae-logo.jpeg" alt="Onuora Abuah Enterprises" /></div>
     <Media reel="superTrailer" active={reel === 'superTrailer'} /><Media reel="documentary" active={reel === 'documentary'} />
     <Media reel="narrative" active={reel === 'narrative'} /><Media reel="events" active={reel === 'events'} />
     <div className="wash" /><div className="grain" />
     <header className="site-header">
-      <button className="wordmark" onClick={() => enter('home')} aria-label="OAE home"><b>OAE</b><span>ONUORA ABUA<br />ENTERPRISE</span></button>
+      <button className="wordmark" onClick={() => enter('home')} aria-label="OAE home"><img className="company-logo" src="/images/oae-logo.jpeg" alt="Onuora Abuah Enterprises" /></button>
       <nav aria-label="Primary navigation">{nav.map((item) => <button key={item.value} className={chapter === item.value ? 'active' : ''} onClick={() => enter(item.value)}>{item.label}</button>)}</nav>
       <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Open menu">{menuOpen ? <X /> : <Menu />}</button>
     </header>
@@ -60,7 +60,7 @@ export default function Home() {
 
     <section className={`chapter world ${chapter === 'world' ? 'active' : ''}`} aria-hidden={chapter !== 'world'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button><p className="chapter-no">03 / OUR WORLD</p>
-      <div className="world-grid">{projects.map((project, i) => <a href={project.href} key={project.name}><div className="project-image" style={{ backgroundPosition: `${25 + i * 28}% center` }} /><small>0{i + 1} / {project.kicker}</small><h2>{project.name}</h2><p>{project.description}</p><ArrowUpRight /></a>)}</div>
+      <div className="world-grid">{projects.map((project, i) => <a href={project.href} key={project.name} target={project.href.startsWith('https://') ? '_blank' : undefined} rel={project.href.startsWith('https://') ? 'noopener noreferrer' : undefined}><div className={`project-image ${project.image ? 'authentic-preview' : ''}`} style={{ backgroundImage: project.image ? `url(${project.image})` : undefined, backgroundPosition: project.image ? 'center 16%' : `${25 + i * 28}% center` }} /><small>0{i + 1} / {project.kicker}</small><h2>{project.name}</h2><p>{project.description}</p><ArrowUpRight /></a>)}</div>
     </section>
 
     <section className={`chapter about ${chapter === 'about' ? 'active' : ''}`} aria-hidden={chapter !== 'about'}>
@@ -72,7 +72,7 @@ export default function Home() {
     <section className={`chapter contact ${chapter === 'contact' ? 'active' : ''}`} id="contact" aria-hidden={chapter !== 'contact'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button><p className="chapter-no">05 / CONTACT</p>
       <div className="contact-copy"><p>START A CONVERSATION</p><h2>LET'S MAKE<br /><em>SOMETHING.</em></h2></div>
-      <div className="contact-links"><a href="mailto:hello@oae.studio"><span>GENERAL</span>hello@oae.studio<ArrowUpRight /></a><a href="mailto:production@oae.studio"><span>PRODUCTION</span>production@oae.studio<ArrowUpRight /></a><a href="mailto:business@oae.studio"><span>BUSINESS</span>business@oae.studio<ArrowUpRight /></a></div>
+      <div className="contact-links">{team.map((person) => <a key={person.email} href={`mailto:${person.email}`}><span>{person.name.split(' ')[0].toUpperCase()}</span>{person.email}<ArrowUpRight /></a>)}</div>
     </section>
     <footer><span>© OAE / 2026</span><button onClick={() => setMuted(!muted)} aria-label={muted ? 'Unmute' : 'Mute'}>{muted ? <VolumeX /> : <Volume2 />} {muted ? 'SOUND OFF' : 'SOUND ON'}</button><span>LAGOS, NIGERIA</span></footer>
   </main>;

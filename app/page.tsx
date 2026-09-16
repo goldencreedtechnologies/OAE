@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { ArrowDownRight, ArrowLeft, ArrowUpRight, Menu, Volume2, VolumeX, X } from 'lucide-react';
 import { projects, team } from '@/data/site';
 import { type ReelKey, videos } from '@/data/videos';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 type Chapter = 'home' | 'film' | 'events' | 'world' | 'about' | 'contact';
 const nav: { label: string; value: Chapter }[] = [
@@ -24,6 +27,12 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [muted, setMuted] = useState(true);
   const [intro, setIntro] = useState(true);
+  const [formReviewed, setFormReviewed] = useState(false);
+  useEffect(() => {
+    const closeMenu = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false); };
+    window.addEventListener('keydown', closeMenu);
+    return () => window.removeEventListener('keydown', closeMenu);
+  }, []);
   useEffect(() => { const id = window.setTimeout(() => setIntro(false), 1150); return () => window.clearTimeout(id); }, []);
   const enter = (next: Chapter) => { setChapter(next); setMenuOpen(false); setReel(next === 'events' ? 'events' : next === 'film' ? 'documentary' : 'superTrailer'); };
 
@@ -37,7 +46,7 @@ export default function Home() {
       <nav aria-label="Primary navigation">{nav.map((item) => <button key={item.value} className={chapter === item.value ? 'active' : ''} onClick={() => enter(item.value)}>{item.label}</button>)}</nav>
       <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Open menu">{menuOpen ? <X /> : <Menu />}</button>
     </header>
-    <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>{nav.map((item, i) => <button key={item.value} onClick={() => enter(item.value)}><small>0{i + 1}</small>{item.label}</button>)}</div>
+    <div className={`mobile-menu ${menuOpen ? 'open' : ''}`} inert={!menuOpen} aria-label="Mobile navigation">{nav.map((item, i) => <button key={item.value} onClick={() => enter(item.value)}><small>0{i + 1}</small>{item.label}</button>)}</div>
 
     <section className={`chapter home ${chapter === 'home' ? 'active' : ''}`} aria-hidden={chapter !== 'home'}>
       <div className="hero-copy"><p className="eyebrow">Independent moving image / Lagos + the world</p><h1>FILM.<br />CULTURE.<br /><em>EXPERIENCES.</em></h1></div>
@@ -72,7 +81,17 @@ export default function Home() {
     <section className={`chapter contact ${chapter === 'contact' ? 'active' : ''}`} id="contact" aria-hidden={chapter !== 'contact'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button><p className="chapter-no">05 / CONTACT</p>
       <div className="contact-copy"><p>START A CONVERSATION</p><h2>LET'S MAKE<br /><em>SOMETHING.</em></h2></div>
-      <div className="contact-links">{team.map((person) => <a key={person.email} href={`mailto:${person.email}`}><span>{person.name.split(' ')[0].toUpperCase()}</span>{person.email}<ArrowUpRight /></a>)}</div>
+      <form className="contact-form" onChange={() => setFormReviewed(false)} onSubmit={(event) => { event.preventDefault(); setFormReviewed(true); }} aria-describedby="form-note">
+        <div className="form-row">
+          <label htmlFor="contact-name">Name<Input id="contact-name" name="name" autoComplete="name" placeholder="Your name" required maxLength={100} /></label>
+          <label htmlFor="contact-email">Email<Input id="contact-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required maxLength={254} /></label>
+        </div>
+        <label htmlFor="contact-company">Company <span>(optional)</span><Input id="contact-company" name="company" autoComplete="organization" placeholder="Company or organisation" maxLength={100} /></label>
+        <label htmlFor="contact-message">Tell us about your project<Textarea id="contact-message" name="message" placeholder="The story, the idea, the experience..." required minLength={10} maxLength={3000} rows={4} /></label>
+        <Button type="submit" className="form-submit">REVIEW MESSAGE <ArrowUpRight /></Button>
+        <p id="form-note" className="form-note">Design prototype — this form does not send messages yet.</p>
+        {formReviewed && <p className="form-status" role="status">Your message is ready to review. Nothing has been sent or stored.</p>}
+      </form>
     </section>
     <footer><span>© OAE / 2026</span><button onClick={() => setMuted(!muted)} aria-label={muted ? 'Unmute' : 'Mute'}>{muted ? <VolumeX /> : <Volume2 />} {muted ? 'SOUND OFF' : 'SOUND ON'}</button><span>LAGOS, NIGERIA</span></footer>
   </main>;

@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { ArrowDownRight, ArrowLeft, ArrowUpRight, Menu, Volume2, VolumeX, X } from 'lucide-react';
-import { projects, team } from '@/data/site';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
+import Image from 'next/image';
+import { filmBullets, filmProjects, projects, team } from '@/data/site';
 import { type ReelKey, videos } from '@/data/videos';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,7 +18,7 @@ const nav: { label: string; value: Chapter }[] = [
 function Media({ reel, active }: { reel: ReelKey; active: boolean }) {
   const media = videos[reel];
   return <div className={`media media-${reel} ${active ? 'is-active' : ''}`} aria-hidden={!active}>
-    {media.src ? <video autoPlay={active} muted loop playsInline preload={active ? 'auto' : 'none'} poster={media.poster}><source src={media.src} /></video> : <img src={media.poster} alt="" />}
+    {media.src && active ? <video autoPlay muted loop playsInline preload="auto" poster={media.poster}><source src={media.src} /></video> : <img src={media.poster} alt="" />}
   </div>;
 }
 
@@ -25,46 +26,64 @@ export default function Home() {
   const [chapter, setChapter] = useState<Chapter>('home');
   const [reel, setReel] = useState<ReelKey>('superTrailer');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [filmCategory, setFilmCategory] = useState<'documentary' | 'narrative' | null>(null);
   const [intro, setIntro] = useState(true);
   const [formReviewed, setFormReviewed] = useState(false);
+  const gallery = useRef<HTMLDivElement>(null);
+  const scrollGallery = (direction: number) => {
+    const track = gallery.current;
+    if (track) track.scrollBy({ left: direction * track.clientWidth * .75, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+  };
   useEffect(() => {
     const closeMenu = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false); };
     window.addEventListener('keydown', closeMenu);
     return () => window.removeEventListener('keydown', closeMenu);
   }, []);
   useEffect(() => { const id = window.setTimeout(() => setIntro(false), 1150); return () => window.clearTimeout(id); }, []);
-  const enter = (next: Chapter) => { setChapter(next); setMenuOpen(false); setReel(next === 'events' ? 'events' : next === 'film' ? 'documentary' : 'superTrailer'); };
+  const enter = (next: Chapter) => { setChapter(next); setMenuOpen(false); setFilmCategory(null); setReel(next === 'events' ? 'events' : next === 'film' ? 'documentary' : 'superTrailer'); };
+  const openFilm = (category: 'documentary' | 'narrative') => { setFilmCategory(category); setReel(category); };
 
   return <main className={`experience chapter-${chapter}`}>
-    <div className={`intro-curtain ${intro ? '' : 'gone'}`}><img className="intro-logo" src="/images/oae-logo.jpeg" alt="Onuora Abuah Enterprises" /></div>
+    <div className={`intro-curtain ${intro ? '' : 'gone'}`}><img className="intro-logo" src="/images/OAE Logo Trnsp.png" alt="Onuora Abuah Enterprises" /></div>
     <Media reel="superTrailer" active={reel === 'superTrailer'} /><Media reel="documentary" active={reel === 'documentary'} />
     <Media reel="narrative" active={reel === 'narrative'} /><Media reel="events" active={reel === 'events'} />
     <div className="wash" /><div className="grain" />
     <header className="site-header">
-      <button className="wordmark" onClick={() => enter('home')} aria-label="OAE home"><img className="company-logo" src="/images/oae-logo.jpeg" alt="Onuora Abuah Enterprises" /></button>
+      <button className="wordmark" onClick={() => enter('home')} aria-label="OAE home"><img className="company-logo" src="/images/OAE logo cut.png" alt="OAE" /></button>
       <nav aria-label="Primary navigation">{nav.map((item) => <button key={item.value} className={chapter === item.value ? 'active' : ''} onClick={() => enter(item.value)}>{item.label}</button>)}</nav>
       <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Open menu">{menuOpen ? <X /> : <Menu />}</button>
     </header>
     <div className={`mobile-menu ${menuOpen ? 'open' : ''}`} inert={!menuOpen} aria-label="Mobile navigation">{nav.map((item, i) => <button key={item.value} onClick={() => enter(item.value)}><small>0{i + 1}</small>{item.label}</button>)}</div>
 
     <section className={`chapter home ${chapter === 'home' ? 'active' : ''}`} aria-hidden={chapter !== 'home'}>
-      <div className="hero-copy"><p className="eyebrow">Independent moving image / Lagos + the world</p><h1>FILM.<br />CULTURE.<br /><em>EXPERIENCES.</em></h1></div>
-      <div className="home-bottom"><p>Stories with a pulse.<br />Images that stay.</p><button onClick={() => enter('film')}>ENTER OUR WORLD <ArrowDownRight /></button></div>
+      <div className="hero-copy"><p className="eyebrow">Onuora Abuah Enterprises</p><h1>FILM.<br />CULTURE.<br /><em>EXPERIENCES.</em></h1></div>
+      <div className="home-bottom"><p>Stories with a pulse.<br />Images that stay.</p><button onClick={() => enter('film')}>ENTER <ArrowDownRight /></button></div>
     </section>
 
-    <section className={`chapter film ${chapter === 'film' ? 'active' : ''}`} aria-hidden={chapter !== 'film'}>
-      <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button><p className="chapter-no">01 / FILM</p>
-      <div className="film-options">
-        <button className={reel === 'documentary' ? 'selected' : ''} onClick={() => setReel('documentary')} onMouseEnter={() => setReel('documentary')}><small>01</small><span>DOCUMENTARIES</span><ArrowUpRight /></button>
-        <button className={reel === 'narrative' ? 'selected' : ''} onClick={() => setReel('narrative')} onMouseEnter={() => setReel('narrative')}><small>02</small><span>FEATURE FILMS<br /><i>+</i> SHORT FILMS</span><ArrowUpRight /></button>
-      </div><p className="reel-label">{videos[reel].label} / Media placeholder</p>
+    <section className={`chapter film ${filmCategory ? 'has-gallery' : ''} ${chapter === 'film' ? 'active' : ''}`} aria-hidden={chapter !== 'film'}>
+      <button className="back" onClick={() => { if (filmCategory) { setFilmCategory(null); setReel('documentary'); } else enter('home'); }}><ArrowLeft /> BACK</button><p className="chapter-no">01 / FILM</p>
+      {filmCategory ? <div className="film-detail" key={filmCategory}>
+        <p className="production-line">{filmCategory === 'documentary' ? 'DOCUMENTARY' : 'NARRATIVE'} PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p>
+        <h2>{filmCategory === 'documentary' ? 'DOCUMENTARIES' : <>FEATURE FILMS<br /><em>+</em> SHORT FILMS</>}</h2>
+        <p className="film-capability">{filmCategory === 'documentary' ? 'Compelling documentaries, crafted with you from development and pre-production through production and post-production.' : 'Feature and short films brought to life through creative development, pre-production, production and post-production.'}</p>
+        <ul className="film-bullets">{filmBullets[filmCategory].map((point) => <li key={point}>{point}</li>)}</ul>
+        <div className="film-proof" ref={gallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label={`${filmCategory === 'documentary' ? 'Documentary' : 'Narrative'} film stills — scroll horizontally`} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(event.key === 'ArrowRight' ? 1 : -1); } }}>{filmProjects[filmCategory].map((project) => <article key={project.image}>
+          <Image src={project.image} alt={project.alt} width={1920} height={1080} sizes="(max-width: 600px) 76vw, 40vw" />
+        </article>)}</div>
+        <div className="film-actions"><button className="project-cta" onClick={() => enter('contact')}>START PROJECT <ArrowUpRight /></button><div className="gallery-controls"><button onClick={() => scrollGallery(-1)} aria-label="Previous film stills"><ArrowLeft /></button><button onClick={() => scrollGallery(1)} aria-label="Next film stills"><ArrowRight /></button></div></div>
+      </div> : <>
+        <p className="reel-label">FILM PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p>
+        <div className="film-options">
+          <button className={reel === 'documentary' ? 'selected' : ''} onClick={() => openFilm('documentary')} onMouseEnter={() => setReel('documentary')}><small>01</small><span>DOCUMENTARIES</span><ArrowUpRight /></button>
+          <button className={reel === 'narrative' ? 'selected' : ''} onClick={() => openFilm('narrative')} onMouseEnter={() => setReel('narrative')}><small>02</small><span>FEATURE FILMS<br /><i>+</i> SHORT FILMS</span><ArrowUpRight /></button>
+        </div>
+      </>}
     </section>
 
     <section className={`chapter events ${chapter === 'events' ? 'active' : ''}`} aria-hidden={chapter !== 'events'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button><p className="chapter-no">02 / EVENTS</p>
-      <div className="event-title"><p>WE CREATE</p><h2>ROOMS<br />THAT <em>MOVE.</em></h2></div>
-      <p className="event-list">Film festivals · Cultural experiences · Dialogues<br />Screenings · Conferences · Live experiences</p>
+      <div className="event-title"><p>EVENT PRODUCTION</p><h2>EXPERIENCES.<br /><em>LASTING MEMORIES.</em></h2><p className="event-statement">We produce experiences with the precision, professionalism and expertise to turn every event into a lasting memory.</p></div>
+      <ul className="event-services">{['FILM FESTIVALS', 'CULTURAL EXPERIENCES', 'DIALOGUES', 'SCREENINGS', 'CONFERENCES', 'LIVE EXPERIENCES'].map((service) => <li key={service}>{service}</li>)}</ul>
     </section>
 
     <section className={`chapter world ${chapter === 'world' ? 'active' : ''}`} aria-hidden={chapter !== 'world'}>
@@ -75,7 +94,7 @@ export default function Home() {
     <section className={`chapter about ${chapter === 'about' ? 'active' : ''}`} aria-hidden={chapter !== 'about'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button><p className="chapter-no">04 / ABOUT</p>
       <div className="about-intro"><p>WHO WE ARE</p><h2>WE MAKE WORK AT THE INTERSECTION OF <em>FILM, CULTURE, STORYTELLING</em> AND LIVE EXPERIENCE.</h2></div>
-      <div className="team">{team.map((person, i) => <article key={person.name}><span>0{i + 1}</span><div className="portrait"><b>{person.name.charAt(0)}</b></div><h3>{person.name}</h3><p>{person.role}</p><a href={`mailto:${person.email}`}>{person.email}</a></article>)}</div>
+      <div className="team">{team.map((person, i) => <article key={person.name}><span>0{i + 1}</span><div className="portrait">{person.image ? <Image src={person.image} alt={person.name} width={600} height={600} sizes="(max-width: 850px) 90vw, 30vw" /> : <b>{person.name.charAt(0)}</b>}</div><h3>{person.name}</h3><p>{person.role}</p><a href={`mailto:${person.email}`}>{person.email}</a></article>)}</div>
     </section>
 
     <section className={`chapter contact ${chapter === 'contact' ? 'active' : ''}`} id="contact" aria-hidden={chapter !== 'contact'}>
@@ -93,6 +112,6 @@ export default function Home() {
         {formReviewed && <p className="form-status" role="status">Your message is ready to review. Nothing has been sent or stored.</p>}
       </form>
     </section>
-    <footer><span>© OAE / 2026</span><button onClick={() => setMuted(!muted)} aria-label={muted ? 'Unmute' : 'Mute'}>{muted ? <VolumeX /> : <Volume2 />} {muted ? 'SOUND OFF' : 'SOUND ON'}</button><span>LAGOS, NIGERIA</span></footer>
+    <footer><span>OAE 2026</span><span>LAGOS, NIGERIA</span></footer>
   </main>;
 }

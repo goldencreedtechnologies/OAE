@@ -1,18 +1,30 @@
-export const projects = [
+// Replace both paths when the new official logo is supplied.
+export const logos = { welcome: '/images/OAE Logo Trnsp.png', navigation: '/images/OAE logo cut.png' };
+export const awards: { name: string; details: string; logo: string }[] = [];
+export const projects: { name: string; kicker: string; description: string; href: string; image: string; logo?: string }[] = [
   { name: 'ỌNUỌRA MENSWEAR', kicker: 'Design', description: 'Contemporary menswear grounded in African identity.', href: 'https://onuoramenswear.com', image: '/images/onuora-hero.png' },
   { name: 'ABIBITUMI FILM FESTIVAL', kicker: 'Cinema', description: 'A gathering for bold stories, filmmakers and audiences.', href: 'https://filmfestival.abibifahodie.org', image: '/media/film festival.png' },
   { name: 'OPEN DOOR DIALOGUES', kicker: 'Ideas', description: 'Conversations that move culture forward.', href: 'https://www.abibitumi.com/abibitumi-event/open-door-dialogues-2026/', image: '/media/open door dialogues.jpg' },
 ];
-export const filmBullets = {
-  documentary: ['Cultural identity', 'People & places', 'Living histories'],
-  narrative: ['Character-driven storytelling', 'Creative development', 'Script-to-screen production'],
-};
-export const filmProjects = {
-  documentary: ['121636', '122406', '123419', '123530', '123749', '123957', '124046', '124545', '124631', '124720', '130046'].map((time, i) => ({ image: `/media/documentaries/Screenshot 2026-09-18 ${time}.jpg`, alt: `Documentary film still ${i + 1}` })),
-  narrative: ['130829', '131359', '131725', '132007', '132258'].map((time, i) => ({ image: `/media/feature film/Screenshot 2026-09-18 ${time}.jpg`, alt: `Narrative film still ${i + 1}` })),
+type FilmProject = { title: string; releaseDate: string; thumbnail: string; link: string; previewUrl: string };
+// Dates and posters intentionally blank until confirmed; provider hashes are preserved.
+export const filmProjects: Record<'documentary' | 'narrative', FilmProject[]> = {
+  documentary: [
+    { title: 'KMT', releaseDate: '', thumbnail: '', link: 'https://vimeo.com/836168431', previewUrl: 'https://player.vimeo.com/video/836168431?autoplay=1&muted=1&controls=0&loop=1' },
+    { title: 'Dahomey and Vodun', releaseDate: '', thumbnail: '', link: 'https://youtu.be/G93TsdYFgoY?si=ioxlIMvEAAF_-6A9', previewUrl: 'https://www.youtube-nocookie.com/embed/G93TsdYFgoY?autoplay=1&mute=1&controls=0&loop=1&playlist=G93TsdYFgoY' },
+    { title: 'Revolution Now', releaseDate: '', thumbnail: '', link: 'https://vimeo.com/647411793', previewUrl: 'https://player.vimeo.com/video/647411793?autoplay=1&muted=1&controls=0&loop=1' },
+  ],
+  narrative: [
+    { title: 'Tafiya', releaseDate: '', thumbnail: '', link: 'https://vimeo.com/597166533', previewUrl: 'https://player.vimeo.com/video/597166533?autoplay=1&muted=1&controls=0&loop=1' },
+    { title: 'Oji', releaseDate: '', thumbnail: '', link: 'https://player.vimeo.com/video/547692019?h=c151762eb5', previewUrl: 'https://player.vimeo.com/video/547692019?h=c151762eb5&autoplay=1&muted=1&controls=0&loop=1' },
+    { title: 'Mona', releaseDate: '', thumbnail: '', link: 'https://player.vimeo.com/video/190173293?h=8c7ac8a910', previewUrl: 'https://player.vimeo.com/video/190173293?h=8c7ac8a910&autoplay=1&muted=1&controls=0&loop=1' },
+    { title: 'The Unlucky Mother', releaseDate: '', thumbnail: '', link: 'https://player.vimeo.com/video/27408125?h=c5b2307972', previewUrl: 'https://player.vimeo.com/video/27408125?h=c5b2307972&autoplay=1&muted=1&controls=0&loop=1' },
+    { title: 'Woolwich Boys', releaseDate: '', thumbnail: '', link: 'https://player.vimeo.com/video/96725826?h=3dec819739', previewUrl: 'https://player.vimeo.com/video/96725826?h=3dec819739&autoplay=1&muted=1&controls=0&loop=1' },
+    { title: 'Title forthcoming', releaseDate: '', thumbnail: '', link: '', previewUrl: '' },
+  ],
 };
 export const team = [
   { name: 'Onuora Abuah', role: 'Founder & Managing Director', email: 'onuora@onuoraenterprises.com', image: '/images/onuora.png' },
-  { name: 'Charles', role: 'Head of Production', email: 'charles@onuoraenterprises.com', image: '/images/charles.jpg' },
+  { name: 'Charles Samuel', role: 'Head of Production', email: 'charles@onuoraenterprises.com', image: '/images/charles.jpg' },
   { name: 'Awele', role: 'Business Development Executive', email: 'awele@onuoraenterprises.com' },
 ];

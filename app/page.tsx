@@ -15,8 +15,6 @@ const nav: { label: string; value: Chapter }[] = [
   { label: 'ABOUT', value: 'about' }, { label: 'CONTACT', value: 'contact' },
 ];
 
-const pausedPreviewUrl = (url: string) => url.replace('autoplay=1', 'autoplay=0');
-
 function Media({ reel, active, playVideo = true }: { reel: ReelKey; active: boolean; playVideo?: boolean }) {
   const media = videos[reel];
   const container = useRef<HTMLDivElement>(null);
@@ -55,8 +53,8 @@ export default function Home() {
 
   return <main className={`experience chapter-${chapter}`}>
     <div className={`intro-curtain ${intro ? '' : 'gone'}`}><img className="intro-logo" src={logos.welcome} alt="OAE" /></div>
-    <Media reel="superTrailer" active={reel === 'superTrailer'} playVideo={chapter === 'home'} /><Media reel="documentary" active={reel === 'documentary'} />
-    <Media reel="narrative" active={reel === 'narrative'} />
+    <Media reel="superTrailer" active={reel === 'superTrailer'} playVideo={chapter === 'home'} />
+    <Media reel="documentary" active={chapter === 'film'} />
     <div className="wash" /><div className="grain" />
     <header className="site-header">
       <button className="wordmark" onClick={() => enter('home')} aria-label="OAE home"><img className="company-logo" src={logos.navigation} alt="OAE" /></button>
@@ -78,8 +76,8 @@ export default function Home() {
         <p className="film-capability">{filmCategory === 'documentary' ? 'Compelling documentaries, crafted with you from development through final cut.' : 'Bold narrative films, brought from concept to screen with you.'}</p>
         <div className="film-proof project-strip" ref={gallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label={`${filmCategory === 'documentary' ? 'Documentary' : 'Narrative'} projects — scroll horizontally`} onScroll={() => setPreview(null)} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(event.key === 'ArrowRight' ? 1 : -1); } }}>{filmProjects[filmCategory].map((project) => <article key={project.title} onPointerEnter={(event) => { if (event.pointerType === 'mouse' && project.previewUrl && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) setPreview(project.title); }} onPointerLeave={(event) => { if (event.pointerType === 'mouse') setPreview(null); }}>
           <button className="project-poster" disabled={!project.previewUrl} aria-label={`${preview === project.title ? 'Stop' : 'Play'} preview: ${project.title}`} aria-pressed={preview === project.title} onClick={() => setPreview(preview === project.title ? null : project.title)}>
-            {project.thumbnail ? <Image src={project.thumbnail} alt={`${project.title} poster`} width={1000} height={800} sizes="(max-width: 600px) 80vw, 36vw" /> : project.previewUrl ? <iframe src={preview === project.title && chapter === 'film' ? project.previewUrl : pausedPreviewUrl(project.previewUrl)} title={`${project.title} preview`} allow="autoplay; fullscreen; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" tabIndex={-1} /> : <span className="poster-placeholder" aria-hidden="true" />}
-            {project.thumbnail && preview === project.title && chapter === 'film' && project.previewUrl && <iframe src={project.previewUrl} title={`${project.title} preview`} allow="autoplay; fullscreen; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" tabIndex={-1} />}
+            {project.thumbnail ? <Image src={project.thumbnail} alt={`${project.title} poster`} width={1000} height={800} sizes="(max-width: 600px) 80vw, 36vw" loading="lazy" /> : <span className="poster-placeholder" aria-hidden="true" />}
+            {preview === project.title && chapter === 'film' && project.previewUrl && <iframe src={project.previewUrl} title={`${project.title} preview`} allow="autoplay; fullscreen; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" tabIndex={-1} />}
           </button>
           <div className="project-caption"><h3>{project.link ? <a href={project.link} target="_blank" rel="noopener noreferrer">{project.title}</a> : project.title}</h3></div>
         </article>)}</div>
@@ -95,7 +93,7 @@ export default function Home() {
 
     <section className={`chapter about ${chapter === 'about' ? 'active' : ''}`} aria-hidden={chapter !== 'about'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button>
-      <div className="team">{team.map((person, i) => <article key={person.name}><span>{i === 0 ? 'FOUNDER' : 'TEAM'}</span><div className="portrait">{person.image ? <Image src={person.image} alt={person.name} width={750} height={600} sizes="(max-width: 850px) 90vw, 24vw" /> : <b>{person.name.charAt(0)}</b>}</div><h3>{person.name}</h3>{person.role && <p>{person.role}</p>}{person.email && <a href={`mailto:${person.email}`}>{person.email}</a>}</article>)}</div>
+      <div className="team">{team.map((person) => <article className="team-card" key={person.name}><div className="portrait">{person.image ? <Image src={person.image} alt={person.name} width={750} height={600} sizes="(max-width: 850px) 90vw, 31vw" /> : <b>{person.name.charAt(0)}</b>}<div className="team-card-copy"><h3>{person.name}</h3>{person.role && <p>{person.role}</p>}{person.email && <a href={`mailto:${person.email}`}>{person.email}</a>}</div></div></article>)}</div>
       <section className="about-events events" aria-label="Events">
       <Media reel="events" active={chapter === 'about'} /><div className="wash" />
       <div className="event-title"><p>EVENT PRODUCTION</p><h2>EXPERIENCES.<br /><em>LASTING MEMORIES.</em></h2><p className="event-statement">We produce experiences with the precision, professionalism and expertise to turn every event into a lasting memory.</p></div>

@@ -264,6 +264,10 @@ footer { grid-template-columns: 1fr 1fr; }
 @media (max-height: 650px) {
   .has-gallery .film-detail { grid-template-rows: auto auto minmax(160px, 1fr) auto; min-height: 310px; }
 }
+.chapter-home > .wash, .chapter-film > .wash { background: linear-gradient(110deg,rgba(2,2,2,.7),rgba(5,5,5,.38) 55%,rgba(2,2,2,.52)),linear-gradient(0deg,rgba(0,0,0,.8),transparent 65%); }
+.about-events { position: relative; isolation: isolate; overflow: hidden; }
+.about-events > .media, .about-events > .wash { z-index: -1; }
+.about-events > .wash { background: rgba(0,0,0,.6); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }.intro-curtain { display: none; }.media { transform: none !important; }
 }

@@ -15,10 +15,17 @@ const nav: { label: string; value: Chapter }[] = [
   { label: 'ABOUT', value: 'about' }, { label: 'CONTACT', value: 'contact' },
 ];
 
-function Media({ reel, active }: { reel: ReelKey; active: boolean }) {
+function Media({ reel, active, playVideo = true }: { reel: ReelKey; active: boolean; playVideo?: boolean }) {
   const media = videos[reel];
-  return <div className={`media media-${reel} ${active ? 'is-active' : ''}`} aria-hidden={!active}>
-    {media.src && active ? <video autoPlay muted loop playsInline preload="auto" poster={media.poster}><source src={media.src} /></video> : <img src={media.poster} alt="" />}
+  const container = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    if (container.current) observer.observe(container.current);
+    return () => observer.disconnect();
+  }, []);
+  return <div ref={container} className={`media media-${reel} ${active ? 'is-active' : ''}`} aria-hidden="true">
+    {media.src && active && playVideo && visible ? <video autoPlay muted loop playsInline preload="metadata" poster={media.poster}><source src={media.src} type="video/mp4" /></video> : <img src={media.poster} alt="" />}
   </div>;
 }
 
@@ -46,7 +53,7 @@ export default function Home() {
 
   return <main className={`experience chapter-${chapter}`}>
     <div className={`intro-curtain ${intro ? '' : 'gone'}`}><img className="intro-logo" src={logos.welcome} alt="OAE" /></div>
-    <Media reel="superTrailer" active={reel === 'superTrailer'} /><Media reel="documentary" active={reel === 'documentary'} />
+    <Media reel="superTrailer" active={reel === 'superTrailer'} playVideo={chapter === 'home'} /><Media reel="documentary" active={reel === 'documentary'} />
     <Media reel="narrative" active={reel === 'narrative'} />
     <div className="wash" /><div className="grain" />
     <header className="site-header">
@@ -89,6 +96,7 @@ export default function Home() {
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button><p className="chapter-no">02 / ABOUT</p>
       <div className="team">{team.map((person, i) => <article key={person.name}><span>{i === 0 ? 'FOUNDER' : 'TEAM'}</span><div className="portrait">{person.image ? <Image src={person.image} alt={person.name} width={600} height={600} sizes="(max-width: 850px) 90vw, 30vw" /> : <b>{person.name.charAt(0)}</b>}</div><h3>{person.name}</h3><p>{person.role}</p><a href={`mailto:${person.email}`}>{person.email}</a></article>)}</div>
       <section className="about-events events" aria-label="Events">
+      <Media reel="events" active={chapter === 'about'} /><div className="wash" />
       <div className="event-title"><p>EVENT PRODUCTION</p><h2>EXPERIENCES.<br /><em>LASTING MEMORIES.</em></h2><p className="event-statement">We produce experiences with the precision, professionalism and expertise to turn every event into a lasting memory.</p></div>
       <ul className="event-services">{['FILM FESTIVALS', 'CULTURAL EXPERIENCES', 'DIALOGUES', 'SCREENINGS', 'CONFERENCES', 'LIVE EXPERIENCES'].map((service) => <li key={service}>{service}</li>)}</ul>
       </section>

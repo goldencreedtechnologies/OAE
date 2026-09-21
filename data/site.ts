@@ -1,5 +1,4 @@
-// Replace both paths when the new official logo is supplied.
-export const logos = { welcome: '/images/OAE Logo Trnsp.png', navigation: '/images/OAE logo cut.png' };
+export const logos = { welcome: '/images/OAE Logo Transparent.png', navigation: '/images/OAE Logo Transparent.png' };
 export const awards: { name: string; details: string; logo: string }[] = [];
 export const projects: { name: string; kicker: string; description: string; href: string; image: string; logo?: string }[] = [
   { name: 'ỌNUỌRA MENSWEAR', kicker: 'Design', description: 'Contemporary menswear grounded in African identity.', href: 'https://onuoramenswear.com', image: '/images/onuora-hero.png' },

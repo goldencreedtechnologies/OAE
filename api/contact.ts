@@ -1,4 +1,4 @@
-import { contactRecipient } from '../data/site';
+const contactRecipient = 'charles@onuoraenterprises.com';
 
 type ContactSubmission = {
   name?: unknown;

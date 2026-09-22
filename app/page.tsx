@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, MapPin, Menu, Phone, X } from 'lucide-react';
 import Image from 'next/image';
-import { contactRecipient, filmProjects, legalDocuments, logos, projects, team } from '@/data/site';
+import { filmProjects, legalDocuments, logos, projects, team } from '@/data/site';
 import { type ReelKey, videos } from '@/data/videos';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,7 +36,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [filmCategory, setFilmCategory] = useState<'documentary' | 'narrative' | null>(null);
   const [intro, setIntro] = useState(true);
-  const [formReviewed, setFormReviewed] = useState(false);
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [preview, setPreview] = useState<string | null>(null);
   const [legalPage, setLegalPage] = useState<LegalPage | null>(null);
   const gallery = useRef<HTMLDivElement>(null);
@@ -107,17 +107,17 @@ export default function Home() {
 
     <section className={`chapter contact ${chapter === 'contact' ? 'active' : ''}`} id="contact" aria-hidden={chapter !== 'contact'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button>
-      <div className="contact-copy"><p>START A CONVERSATION</p><h2>LET'S MAKE<br /><em>SOMETHING.</em></h2><address className="contact-details"><p>22 GLOVER RD, IKOYI, LAGOS, 101233, LAGOS</p><p><a href="tel:+447519073560">+44 7519 0735 60</a>, <a href="tel:09029786545">090 2978 6545</a></p></address></div>
-      <form className="contact-form" onChange={() => setFormReviewed(false)} onSubmit={(event) => { event.preventDefault(); const data = new FormData(event.currentTarget); const name = String(data.get('name') || ''); const email = String(data.get('email') || ''); const company = String(data.get('company') || ''); const message = String(data.get('message') || ''); const subject = encodeURIComponent(`OAE project enquiry from ${name}`); const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCompany: ${company || 'Not provided'}\n\nProject details:\n${message}`); setFormReviewed(true); window.location.href = `mailto:${contactRecipient}?subject=${subject}&body=${body}`; }} aria-describedby="form-note">
+      <div className="contact-copy"><p>START A CONVERSATION</p><h2>LET'S MAKE<br /><em>SOMETHING.</em></h2><address className="contact-details"><a className="contact-detail" href="https://www.google.com/maps/search/?api=1&query=22%20GLOVER%20RD%2C%20IKOYI%2C%20LAGOS" target="_blank" rel="noopener noreferrer"><MapPin aria-hidden="true" /><span>22 GLOVER RD, IKOYI, LAGOS<br />P.O. BOX 101233, LAGOS</span></a><div className="contact-detail"><Phone aria-hidden="true" /><div className="contact-phone-list"><span><a href="tel:+447519073560">+44 7519 0735 60</a><a className="whatsapp-link" href="https://wa.me/447519073560" target="_blank" rel="noopener noreferrer">WHATSAPP</a></span><span><a href="tel:09029786545">090 297 8654 5</a><a className="whatsapp-link" href="https://wa.me/2349029786545" target="_blank" rel="noopener noreferrer">WHATSAPP</a></span></div></div></address></div>
+      <form className="contact-form" aria-busy={formStatus === 'sending'} onChange={() => { if (formStatus !== 'sending') setFormStatus('idle'); }} onSubmit={async (event) => { event.preventDefault(); if (formStatus === 'sending') return; const form = event.currentTarget; const data = new FormData(form); setFormStatus('sending'); try { const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: data.get('name'), email: data.get('email'), company: data.get('company'), message: data.get('message') }) }); if (!response.ok) throw new Error('Unable to send'); form.reset(); setFormStatus('success'); } catch { setFormStatus('error'); } }} aria-describedby="form-note">
         <div className="form-row">
           <label htmlFor="contact-name">Name<Input id="contact-name" name="name" autoComplete="name" placeholder="Your name" required maxLength={100} /></label>
           <label htmlFor="contact-email">Email<Input id="contact-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required maxLength={254} /></label>
         </div>
         <label htmlFor="contact-company">Company <span>(optional)</span><Input id="contact-company" name="company" autoComplete="organization" placeholder="Company or organisation" maxLength={100} /></label>
         <label htmlFor="contact-message">Tell us about your project<Textarea id="contact-message" name="message" placeholder="The story, the idea, the experience..." required minLength={10} maxLength={3000} rows={4} /></label>
-        <Button type="submit" className="form-submit">SEND MESSAGE <ArrowUpRight /></Button>
-        <p id="form-note" className="form-note">Opens your email app with your message addressed to OAE.</p>
-        {formReviewed && <p className="form-status" role="status">Your email app has been opened. Please review and send your message there.</p>}
+        <Button type="submit" className="form-submit" disabled={formStatus === 'sending'}>{formStatus === 'sending' ? 'SENDING…' : 'SEND MESSAGE'} <ArrowUpRight /></Button>
+        <p id="form-note" className="form-note">Your message will be sent directly to OAE.</p>
+        <div aria-live="polite">{formStatus === 'success' && <p className="form-status" role="status">Thank you. Your message has been sent.</p>}{formStatus === 'error' && <p className="form-status form-error" role="alert">We couldn't send your message. Please try again.</p>}</div>
       </form>
     </section>
     {legalPage && <section className="legal-panel" role="dialog" aria-modal="true" aria-labelledby="legal-title"><div className="legal-document"><button className="legal-close" onClick={() => setLegalPage(null)}><X /> CLOSE</button><h2 id="legal-title">{legalDocuments[legalPage].title}</h2>{legalDocuments[legalPage].paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></section>}

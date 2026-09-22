@@ -1,6 +1,6 @@
 # OAE cinematic prototype
 
-A first working design prototype for Onuora Abua Enterprise. It is intentionally a single-page, media-led experience with no CMS or backend. The Contact form opens the visitor's email app with a message addressed to the configured OAE recipient; it does not store messages on the site.
+A first working design prototype for Onuora Abua Enterprise. It is intentionally a single-page, media-led experience with a server-side Resend function for Contact submissions; messages are delivered directly to the configured OAE recipient.
 
 ## Run locally
 

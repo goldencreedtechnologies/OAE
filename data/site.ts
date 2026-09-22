@@ -23,7 +23,7 @@ export const filmProjects: Record<'documentary' | 'narrative', FilmProject[]> = 
   ],
 };
 export const team = [
-  { name: 'Onuora Abuah', role: 'Founder & Managing Director', email: 'onuora@onuoraenterprises.com', image: '/images/onuora.png' },
+  { name: 'Onuora Abuah', role: 'Founder & Managing Director', email: 'onuora@onuoraenterprises.com', image: '/images/onuora-headshot.png' },
   { name: 'Charles Samuel', role: 'Head of Production', email: 'charles@onuoraenterprises.com', image: '/images/Charles-Headshot.png' },
   { name: 'Awele Ozieh', role: 'Business Development Executive', email: 'awele@onuoraenterprises.com', image: '/images/Awele-Headshot.png' },
 ];

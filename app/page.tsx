@@ -107,7 +107,7 @@ export default function Home() {
 
     <section className={`chapter contact ${chapter === 'contact' ? 'active' : ''}`} id="contact" aria-hidden={chapter !== 'contact'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button>
-      <div className="contact-copy"><p>START A CONVERSATION</p><h2>LET'S MAKE<br /><em>SOMETHING.</em></h2></div>
+      <div className="contact-copy"><p>START A CONVERSATION</p><h2>LET'S MAKE<br /><em>SOMETHING.</em></h2><address className="contact-details"><p>22 GLOVER RD, IKOYI, LAGOS, 101233, LAGOS</p><p><a href="tel:+447519073560">+44 7519 0735 60</a>, <a href="tel:09029786545">090 2978 6545</a></p></address></div>
       <form className="contact-form" onChange={() => setFormReviewed(false)} onSubmit={(event) => { event.preventDefault(); const data = new FormData(event.currentTarget); const name = String(data.get('name') || ''); const email = String(data.get('email') || ''); const company = String(data.get('company') || ''); const message = String(data.get('message') || ''); const subject = encodeURIComponent(`OAE project enquiry from ${name}`); const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCompany: ${company || 'Not provided'}\n\nProject details:\n${message}`); setFormReviewed(true); window.location.href = `mailto:${contactRecipient}?subject=${subject}&body=${body}`; }} aria-describedby="form-note">
         <div className="form-row">
           <label htmlFor="contact-name">Name<Input id="contact-name" name="name" autoComplete="name" placeholder="Your name" required maxLength={100} /></label>

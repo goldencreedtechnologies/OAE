@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
 import Image from 'next/image';
-import { filmProjects, logos, projects, team } from '@/data/site';
+import { contactRecipient, filmProjects, legalDocuments, logos, projects, team } from '@/data/site';
 import { type ReelKey, videos } from '@/data/videos';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
 type Chapter = 'home' | 'film' | 'about' | 'contact';
+type LegalPage = keyof typeof legalDocuments;
 const nav: { label: string; value: Chapter }[] = [
   { label: 'FILM', value: 'film' },
   { label: 'ABOUT', value: 'about' }, { label: 'CONTACT', value: 'contact' },
@@ -37,18 +38,19 @@ export default function Home() {
   const [intro, setIntro] = useState(true);
   const [formReviewed, setFormReviewed] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [legalPage, setLegalPage] = useState<LegalPage | null>(null);
   const gallery = useRef<HTMLDivElement>(null);
   const scrollGallery = (direction: number) => {
     const track = gallery.current;
     if (track) track.scrollBy({ left: direction * track.clientWidth * .75, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   };
   useEffect(() => {
-    const closeMenu = (event: KeyboardEvent) => { if (event.key === 'Escape') { setMenuOpen(false); setPreview(null); } };
+    const closeMenu = (event: KeyboardEvent) => { if (event.key === 'Escape') { setMenuOpen(false); setPreview(null); setLegalPage(null); } };
     window.addEventListener('keydown', closeMenu);
     return () => window.removeEventListener('keydown', closeMenu);
   }, []);
   useEffect(() => { const id = window.setTimeout(() => setIntro(false), 1150); return () => window.clearTimeout(id); }, []);
-  const enter = (next: Chapter) => { setChapter(next); setMenuOpen(false); setFilmCategory(null); setPreview(null); setReel(next === 'film' ? 'documentary' : 'superTrailer'); };
+  const enter = (next: Chapter) => { setChapter(next); setMenuOpen(false); setFilmCategory(null); setPreview(null); setLegalPage(null); setReel(next === 'film' ? 'documentary' : 'superTrailer'); };
   const openFilm = (category: 'documentary' | 'narrative') => { setFilmCategory(category); setPreview(null); setReel(category); };
 
   return <main className={`experience chapter-${chapter}`}>
@@ -106,18 +108,19 @@ export default function Home() {
     <section className={`chapter contact ${chapter === 'contact' ? 'active' : ''}`} id="contact" aria-hidden={chapter !== 'contact'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button>
       <div className="contact-copy"><p>START A CONVERSATION</p><h2>LET'S MAKE<br /><em>SOMETHING.</em></h2></div>
-      <form className="contact-form" onChange={() => setFormReviewed(false)} onSubmit={(event) => { event.preventDefault(); setFormReviewed(true); }} aria-describedby="form-note">
+      <form className="contact-form" onChange={() => setFormReviewed(false)} onSubmit={(event) => { event.preventDefault(); const data = new FormData(event.currentTarget); const name = String(data.get('name') || ''); const email = String(data.get('email') || ''); const company = String(data.get('company') || ''); const message = String(data.get('message') || ''); const subject = encodeURIComponent(`OAE project enquiry from ${name}`); const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCompany: ${company || 'Not provided'}\n\nProject details:\n${message}`); setFormReviewed(true); window.location.href = `mailto:${contactRecipient}?subject=${subject}&body=${body}`; }} aria-describedby="form-note">
         <div className="form-row">
           <label htmlFor="contact-name">Name<Input id="contact-name" name="name" autoComplete="name" placeholder="Your name" required maxLength={100} /></label>
           <label htmlFor="contact-email">Email<Input id="contact-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required maxLength={254} /></label>
         </div>
         <label htmlFor="contact-company">Company <span>(optional)</span><Input id="contact-company" name="company" autoComplete="organization" placeholder="Company or organisation" maxLength={100} /></label>
         <label htmlFor="contact-message">Tell us about your project<Textarea id="contact-message" name="message" placeholder="The story, the idea, the experience..." required minLength={10} maxLength={3000} rows={4} /></label>
-        <Button type="submit" className="form-submit">REVIEW MESSAGE <ArrowUpRight /></Button>
-        <p id="form-note" className="form-note">Design prototype — this form does not send messages yet.</p>
-        {formReviewed && <p className="form-status" role="status">Your message is ready to review. Nothing has been sent or stored.</p>}
+        <Button type="submit" className="form-submit">SEND MESSAGE <ArrowUpRight /></Button>
+        <p id="form-note" className="form-note">Opens your email app with your message addressed to OAE.</p>
+        {formReviewed && <p className="form-status" role="status">Your email app has been opened. Please review and send your message there.</p>}
       </form>
     </section>
-    <footer className="site-footer"><span>OAE 2026</span><div className="legal-links" aria-label="Legal information forthcoming">{['PRIVACY', 'TERMS', 'ACCESSIBILITY', 'LEGAL'].map((label) => <span key={label} role="link" aria-disabled="true" title="Coming soon">{label}</span>)}</div></footer>
+    {legalPage && <section className="legal-panel" role="dialog" aria-modal="true" aria-labelledby="legal-title"><div className="legal-document"><button className="legal-close" onClick={() => setLegalPage(null)}><X /> CLOSE</button><h2 id="legal-title">{legalDocuments[legalPage].title}</h2>{legalDocuments[legalPage].paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></section>}
+    <footer className="site-footer"><span>OAE 2026</span><div className="legal-links" aria-label="Legal information">{(Object.keys(legalDocuments) as LegalPage[]).map((key) => <button key={key} onClick={() => setLegalPage(key)}>{legalDocuments[key].title}</button>)}</div></footer>
   </main>;
 }

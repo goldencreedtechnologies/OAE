@@ -79,7 +79,6 @@ export default function Home() {
             {project.thumbnail ? <Image src={project.thumbnail} alt={`${project.title} poster`} width={1000} height={800} sizes="(max-width: 600px) 80vw, 36vw" loading="lazy" /> : <span className="poster-placeholder" aria-hidden="true" />}
             {preview === project.title && chapter === 'film' && project.previewUrl && <iframe src={project.previewUrl} title={`${project.title} preview`} allow="autoplay; fullscreen; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" tabIndex={-1} />}
           </button>
-          <div className="project-caption"><h3>{project.link ? <a href={project.link} target="_blank" rel="noopener noreferrer">{project.title}</a> : project.title}</h3></div>
         </article>)}</div>
         <div className="film-actions"><button className="project-cta" onClick={() => enter('contact')}>START PROJECT <ArrowUpRight /></button><div className="gallery-controls"><button onClick={() => scrollGallery(-1)} aria-label="Previous projects"><ArrowLeft /></button><button onClick={() => scrollGallery(1)} aria-label="Next projects"><ArrowRight /></button></div></div>
       </div> : <>

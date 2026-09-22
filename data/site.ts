@@ -13,12 +13,10 @@ export const filmProjects: Record<'documentary' | 'narrative', FilmProject[]> = 
     { title: 'Revolution Now', releaseDate: '', thumbnail: '', link: 'https://www.youtube.com/embed/skDqooLVVx8?si=a7y0D-2zdvIyZoA2', previewUrl: 'https://www.youtube-nocookie.com/embed/skDqooLVVx8?si=a7y0D-2zdvIyZoA2&autoplay=1&mute=1&controls=0&loop=1&playlist=skDqooLVVx8' },
   ],
   narrative: [
-    { title: 'Tafia', releaseDate: '', thumbnail: '/media/feature film/Screenshot 2026-09-18 130829.jpg', link: 'https://vimeo.com/597166533', previewUrl: 'https://player.vimeo.com/video/597166533?autoplay=1&muted=1&controls=0&loop=1' },
-    { title: 'Oji', releaseDate: '', thumbnail: '/media/feature film/Screenshot 2026-09-18 131359.jpg', link: 'https://player.vimeo.com/video/547692019?h=c151762eb5', previewUrl: 'https://player.vimeo.com/video/547692019?h=c151762eb5&autoplay=1&muted=1&controls=0&loop=1' },
-    { title: 'Muna', releaseDate: '', thumbnail: '/media/Mona-thumb.jpg', link: 'https://player.vimeo.com/video/190173293?h=8c7ac8a910', previewUrl: 'https://player.vimeo.com/video/190173293?h=8c7ac8a910&autoplay=1&muted=1&controls=0&loop=1' },
-    { title: 'The Unlocking Mother', releaseDate: '', thumbnail: '/media/feature film/Screenshot 2026-09-18 131725.jpg', link: 'https://player.vimeo.com/video/27408125?h=c5b2307972', previewUrl: 'https://player.vimeo.com/video/27408125?h=c5b2307972&autoplay=1&muted=1&controls=0&loop=1' },
-    { title: 'Hairjob', releaseDate: '', thumbnail: '/media/feature film/Screenshot 2026-09-18 132007.jpg', link: '', previewUrl: '' },
-    { title: 'Another Beer', releaseDate: '', thumbnail: '/media/feature film/Screenshot 2026-09-18 132258.jpg', link: '', previewUrl: '' },
+    { title: 'Tafiya', releaseDate: '', thumbnail: '', link: 'https://vimeo.com/597166533', previewUrl: 'https://player.vimeo.com/video/597166533?autoplay=1&muted=1&controls=0&loop=1&title=0&byline=0&portrait=0' },
+    { title: 'Oji', releaseDate: '', thumbnail: '', link: 'https://player.vimeo.com/video/547692019?h=c151762eb5', previewUrl: 'https://player.vimeo.com/video/547692019?h=c151762eb5&autoplay=1&muted=1&controls=0&loop=1&title=0&byline=0&portrait=0' },
+    { title: 'Mona', releaseDate: '', thumbnail: '/media/Mona-thumb.jpg', link: 'https://player.vimeo.com/video/190173293?h=8c7ac8a910', previewUrl: 'https://player.vimeo.com/video/190173293?h=8c7ac8a910&autoplay=1&muted=1&controls=0&loop=1&title=0&byline=0&portrait=0' },
+    { title: 'Unlucky Mother', releaseDate: '', thumbnail: '', link: 'https://player.vimeo.com/video/27408125?h=c5b2307972', previewUrl: 'https://player.vimeo.com/video/27408125?h=c5b2307972&autoplay=1&muted=1&controls=0&loop=1&title=0&byline=0&portrait=0' },
   ],
 };
 export const team = [

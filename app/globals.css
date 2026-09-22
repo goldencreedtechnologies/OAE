@@ -203,8 +203,7 @@ footer { grid-template-columns: 1fr 1fr; }
 .has-gallery .film-proof { display: flex; gap: 20px; min-height: 0; padding: 10px 0 12px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--gold) transparent; }
 .has-gallery .film-proof article { flex: 0 0 40%; height: calc(100% - 8px); scroll-snap-align: start; border-radius: 6px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,.35); transition: transform .4s ease; }
 .has-gallery .film-proof article:nth-child(even) { align-self: end; }
-.has-gallery .film-proof img { display: block; height: 100%; width: 100%; object-fit: cover; border-radius: 6px; filter: none; transition: transform .7s ease; }
-.has-gallery .film-proof article:hover img { transform: scale(1.025); }
+.has-gallery .film-proof img { display: block; height: 100%; width: 100%; object-fit: contain; border-radius: 0; filter: none; }
 .film-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .film-actions .project-cta { margin-top: 0; }
 .gallery-controls { display: flex; gap: 8px; }

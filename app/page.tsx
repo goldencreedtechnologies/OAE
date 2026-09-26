@@ -38,12 +38,21 @@ export default function Home() {
   const [intro, setIntro] = useState(true);
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [preview, setPreview] = useState<string | null>(null);
+  const [previewReady, setPreviewReady] = useState(false);
   const [legalPage, setLegalPage] = useState<LegalPage | null>(null);
-  const gallery = useRef<HTMLDivElement>(null);
-  const scrollGallery = (direction: number) => {
-    const track = gallery.current;
+  const documentaryGallery = useRef<HTMLDivElement>(null);
+  const featureGallery = useRef<HTMLDivElement>(null);
+  const shortGallery = useRef<HTMLDivElement>(null);
+  const scrollGallery = (track: HTMLDivElement | null, direction: number) => {
     if (track) track.scrollBy({ left: direction * track.clientWidth * .75, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   };
+  const showPreview = (title: string | null) => { setPreviewReady(false); setPreview(title); };
+  const renderProjects = (items: typeof filmProjects.documentary) => items.map((project) => <article key={project.title} onPointerEnter={(event) => { if (event.pointerType === 'mouse' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) showPreview(project.title); }} onPointerLeave={(event) => { if (event.pointerType === 'mouse') showPreview(null); }}>
+    <button className="project-poster" aria-label={`${preview === project.title ? 'Stop' : 'Play'} preview: ${project.title}`} aria-pressed={preview === project.title} onClick={() => showPreview(preview === project.title ? null : project.title)}>
+      {project.thumbnail.startsWith('http') ? <img src={project.thumbnail} alt={`${project.title} poster`} loading="lazy" /> : <Image src={project.thumbnail} alt={`${project.title} poster`} width={1000} height={800} sizes="(max-width: 600px) 80vw, 36vw" loading="lazy" />}
+      {preview === project.title && chapter === 'film' && <iframe className={previewReady ? 'is-ready' : ''} src={project.previewUrl} title={`${project.title} preview`} allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerPolicy="strict-origin-when-cross-origin" loading="lazy" tabIndex={-1} onLoad={() => setPreviewReady(true)} />}
+    </button>
+  </article>);
   useEffect(() => {
     const closeMenu = (event: KeyboardEvent) => { if (event.key === 'Escape') { setMenuOpen(false); setPreview(null); setLegalPage(null); } };
     window.addEventListener('keydown', closeMenu);
@@ -76,13 +85,11 @@ export default function Home() {
         <p className="production-line">{filmCategory === 'documentary' ? 'DOCUMENTARY' : 'NARRATIVE'} PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p>
         <h2>{filmCategory === 'documentary' ? 'DOCUMENTARIES' : <>FEATURE FILMS<br /><em>+</em> SHORT FILMS</>}</h2>
         <p className="film-capability">{filmCategory === 'documentary' ? 'Compelling documentaries, crafted with you from development through final cut.' : 'Bold narrative films, brought from concept to screen with you.'}</p>
-        <div className="film-proof project-strip" ref={gallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label={`${filmCategory === 'documentary' ? 'Documentary' : 'Narrative'} projects — scroll horizontally`} onScroll={() => setPreview(null)} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(event.key === 'ArrowRight' ? 1 : -1); } }}>{filmProjects[filmCategory].map((project) => <article key={project.title} onPointerEnter={(event) => { if (event.pointerType === 'mouse' && project.previewUrl && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) setPreview(project.title); }} onPointerLeave={(event) => { if (event.pointerType === 'mouse') setPreview(null); }}>
-          <button className="project-poster" disabled={!project.previewUrl} aria-label={`${preview === project.title ? 'Stop' : 'Play'} preview: ${project.title}`} aria-pressed={preview === project.title} onClick={() => setPreview(preview === project.title ? null : project.title)}>
-            {project.thumbnail ? <Image src={project.thumbnail} alt={`${project.title} poster`} width={1000} height={800} sizes="(max-width: 600px) 80vw, 36vw" loading="lazy" /> : <span className="poster-placeholder" aria-hidden="true" />}
-            {preview === project.title && chapter === 'film' && project.previewUrl && <iframe src={project.previewUrl} title={`${project.title} preview`} allow="autoplay; fullscreen; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" tabIndex={-1} />}
-          </button>
-        </article>)}</div>
-        <div className="film-actions"><button className="project-cta" onClick={() => enter('contact')}>START PROJECT <ArrowUpRight /></button><div className="gallery-controls"><button onClick={() => scrollGallery(-1)} aria-label="Previous projects"><ArrowLeft /></button><button onClick={() => scrollGallery(1)} aria-label="Next projects"><ArrowRight /></button></div></div>
+        {filmCategory === 'documentary' ? <div className="film-proof project-strip" ref={documentaryGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Documentary projects - scroll horizontally" onScroll={() => showPreview(null)} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(documentaryGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.documentary)}</div> : <div className="narrative-rows">
+          <section className="film-row" aria-labelledby="feature-films-title"><div className="film-row-header"><h3 id="feature-films-title">FEATURE FILMS</h3><div className="gallery-controls"><button onClick={() => scrollGallery(featureGallery.current, -1)} aria-label="Previous feature films"><ArrowLeft /></button><button onClick={() => scrollGallery(featureGallery.current, 1)} aria-label="Next feature films"><ArrowRight /></button></div></div><div className="film-proof project-strip" ref={featureGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Feature film projects - scroll horizontally" onScroll={() => showPreview(null)} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(featureGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.feature)}</div></section>
+          <section className="film-row" aria-labelledby="short-films-title"><div className="film-row-header"><h3 id="short-films-title">SHORT FILMS</h3><div className="gallery-controls"><button onClick={() => scrollGallery(shortGallery.current, -1)} aria-label="Previous short films"><ArrowLeft /></button><button onClick={() => scrollGallery(shortGallery.current, 1)} aria-label="Next short films"><ArrowRight /></button></div></div><div className="film-proof project-strip" ref={shortGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Short film projects - scroll horizontally" onScroll={() => showPreview(null)} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(shortGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.short)}</div></section>
+        </div>}
+        <div className="film-actions"><button className="project-cta" onClick={() => enter('contact')}>START PROJECT <ArrowUpRight /></button>{filmCategory === 'documentary' && <div className="gallery-controls"><button onClick={() => scrollGallery(documentaryGallery.current, -1)} aria-label="Previous projects"><ArrowLeft /></button><button onClick={() => scrollGallery(documentaryGallery.current, 1)} aria-label="Next projects"><ArrowRight /></button></div>}</div>
       </div> : <>
         <p className="reel-label">FILM PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p>
         <div className="film-options">

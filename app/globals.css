@@ -287,6 +287,13 @@ footer { grid-template-columns: 1fr 1fr; }
 .project-poster { aspect-ratio: 16 / 9; border: 0; background: transparent; }
 .narrative-rows .project-strip article { flex-basis: clamp(180px, 28dvh, 280px); height: auto; }
 .narrative-rows .project-poster { height: auto; aspect-ratio: 16 / 9; }
+@media (min-width: 601px) {
+  .has-gallery .narrative-detail { height: auto; min-height: 100%; grid-template-rows: auto auto auto auto auto; align-content: start; }
+  .narrative-rows { grid-template-rows: repeat(2, auto); gap: 20px; }
+  .film-row { grid-template-rows: auto auto; }
+  .narrative-rows .film-proof { overflow-y: visible; }
+  .narrative-rows .project-strip article { flex-basis: clamp(260px, 31vw, 440px); }
+}
 @media (max-width: 600px) {
   .has-gallery .film-detail { display: block; height: auto; min-height: 0; }
   .has-gallery .production-line { margin-bottom: 12px; }

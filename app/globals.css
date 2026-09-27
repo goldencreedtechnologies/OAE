@@ -148,8 +148,8 @@ footer svg { width: 16px; }
 }
 /* Refinement: keep the chapter system and supplied artwork intact. */
 .intro-logo { mix-blend-mode: normal; }
-.wordmark { width: 120px; height: 72px; overflow: hidden; position: relative; }
-.company-logo { position: absolute; width: 170px; height: 170px; max-width: none; left: 50%; top: 50%; transform: translate(-50%, -50%); mix-blend-mode: normal; }
+.wordmark { width: 112px; height: 72px; overflow: visible; display: grid; place-items: center; }
+.company-logo { position: static; width: 72px; height: 72px; max-width: 100%; transform: none; object-fit: contain; mix-blend-mode: normal; }
 .home .eyebrow { white-space: nowrap; font-family: 'Bebas Neue', 'Arial Narrow', sans-serif; font-size: clamp(1rem, 1.5vw, 1.35rem); line-height: 1; letter-spacing: .08em; font-weight: 400; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
 .film-detail { width: 100%; max-width: 1280px; margin: auto 0; }
 .production-line { margin: 0 0 16px; font-size: .7rem; letter-spacing: .12em; opacity: .7; }
@@ -174,12 +174,12 @@ footer svg { width: 16px; }
 .world-grid svg { right: 16px; bottom: 24px; }
 footer { grid-template-columns: 1fr 1fr; }
 @media (max-width: 850px) {
-  .wordmark { width: 104px; height: 58px; }
-  .company-logo { width: 140px; height: 140px; }
+  .wordmark { width: 92px; height: 58px; }
+  .company-logo { width: 58px; height: 58px; }
 }
 @media (max-height: 500px) {
-  .wordmark { width: 92px; height: 54px; }
-  .company-logo { width: 128px; height: 128px; }
+  .wordmark { width: 84px; height: 54px; }
+  .company-logo { width: 54px; height: 54px; }
 }
 @media (max-width: 600px) {
   .film-proof { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 68%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; gap: 16px; }
@@ -288,11 +288,15 @@ footer { grid-template-columns: 1fr 1fr; }
 .narrative-rows .project-strip article { flex-basis: clamp(180px, 28dvh, 280px); height: auto; }
 .narrative-rows .project-poster { height: auto; aspect-ratio: 16 / 9; }
 @media (min-width: 601px) {
-  .has-gallery .narrative-detail { height: auto; min-height: 100%; grid-template-rows: auto auto auto auto auto; align-content: start; }
-  .narrative-rows { grid-template-rows: repeat(2, auto); gap: 20px; }
-  .film-row { grid-template-rows: auto auto; }
+  .has-gallery .narrative-detail { display: block; height: auto; min-height: 100%; }
+  .narrative-rows { display: block; }
+  .film-row { display: block; min-height: calc(100dvh - var(--header-height) - var(--footer-height) - 76px); padding: clamp(16px, 3vh, 32px) 0 clamp(56px, 9vh, 100px); }
+  .film-row + .film-row { margin-top: clamp(40px, 8vh, 90px); }
+  .film-row-header { margin-bottom: 16px; }
   .narrative-rows .film-proof { overflow-y: visible; }
   .narrative-rows .project-strip article { flex-basis: clamp(260px, 31vw, 440px); }
+  .narrative-rows .film-row:first-child .film-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+  .narrative-rows .film-row:first-child .project-strip article { width: auto; }
 }
 @media (max-width: 600px) {
   .has-gallery .film-detail { display: block; height: auto; min-height: 0; }

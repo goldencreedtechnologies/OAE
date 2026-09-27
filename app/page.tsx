@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, MapPin, Menu, Phone, X } from 'lucide-react';
 import Image from 'next/image';
 import { filmProjects, legalDocuments, logos, projects, team } from '@/data/site';
@@ -43,6 +43,8 @@ export default function Home() {
   const documentaryGallery = useRef<HTMLDivElement>(null);
   const featureGallery = useRef<HTMLDivElement>(null);
   const shortGallery = useRef<HTMLDivElement>(null);
+  const galleryScrollFrame = useRef<number | null>(null);
+  const previewTimer = useRef<number | null>(null);
   const [shortNavigation, setShortNavigation] = useState({ back: false, forward: true });
   const scrollGallery = (track: HTMLDivElement | null, direction: number) => {
     if (track) track.scrollBy({ left: direction * track.clientWidth * .75, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
@@ -68,13 +70,33 @@ export default function Home() {
       observer.disconnect();
     };
   }, [filmCategory]);
-  const showPreview = (title: string | null) => { setPreviewReady(false); setPreview(title); };
-  const renderProjects = (items: typeof filmProjects.documentary) => items.map((project) => <article key={project.title} onPointerEnter={(event) => { if (event.pointerType === 'mouse' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) showPreview(project.title); }} onPointerLeave={(event) => { if (event.pointerType === 'mouse') showPreview(null); }}>
+  const showPreview = (title: string | null) => startTransition(() => { setPreviewReady(false); setPreview(title); });
+  const queuePreview = (title: string) => {
+    if (previewTimer.current !== null) window.clearTimeout(previewTimer.current);
+    previewTimer.current = window.setTimeout(() => { previewTimer.current = null; showPreview(title); }, 90);
+  };
+  const clearPreview = () => {
+    if (previewTimer.current !== null) { window.clearTimeout(previewTimer.current); previewTimer.current = null; }
+    if (preview !== null || previewReady) showPreview(null);
+  };
+  const handleGalleryScroll = (track?: 'short') => {
+    if (galleryScrollFrame.current !== null) return;
+    galleryScrollFrame.current = window.requestAnimationFrame(() => {
+      galleryScrollFrame.current = null;
+      clearPreview();
+      if (track === 'short') updateShortNavigation();
+    });
+  };
+  const renderProjects = (items: typeof filmProjects.documentary, eagerCount = 0) => items.map((project, index) => <article key={project.title} onPointerEnter={(event) => { if (event.pointerType === 'mouse' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) queuePreview(project.title); }} onPointerLeave={(event) => { if (event.pointerType === 'mouse') clearPreview(); }}>
     <button className="project-poster" aria-label={`${preview === project.title ? 'Stop' : 'Play'} preview: ${project.title}`} aria-pressed={preview === project.title} onClick={() => showPreview(preview === project.title ? null : project.title)}>
-      {project.thumbnail.startsWith('http') ? <img src={project.thumbnail} alt={`${project.title} poster`} loading="lazy" /> : <Image src={project.thumbnail} alt={`${project.title} poster`} width={1000} height={800} sizes="(max-width: 600px) 80vw, 36vw" loading="lazy" />}
+      {project.thumbnail.startsWith('http') ? <img src={project.thumbnail} alt={`${project.title} poster`} loading={index < eagerCount ? 'eager' : 'lazy'} fetchPriority={index < eagerCount ? 'high' : 'low'} decoding="async" /> : <Image src={project.thumbnail} alt={`${project.title} poster`} width={1280} height={720} sizes="(max-width: 600px) calc(100vw - 40px), (max-width: 1100px) 48vw, 31vw" quality={82} priority={index < eagerCount} />}
       {preview === project.title && chapter === 'film' && <iframe className={previewReady ? 'is-ready' : ''} src={project.previewUrl} title={`${project.title} preview`} allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerPolicy="strict-origin-when-cross-origin" loading="lazy" tabIndex={-1} onLoad={() => setPreviewReady(true)} />}
     </button>
   </article>);
+  useEffect(() => () => {
+    if (previewTimer.current !== null) window.clearTimeout(previewTimer.current);
+    if (galleryScrollFrame.current !== null) window.cancelAnimationFrame(galleryScrollFrame.current);
+  }, []);
   useEffect(() => {
     const closeMenu = (event: KeyboardEvent) => { if (event.key === 'Escape') { setMenuOpen(false); setPreview(null); setLegalPage(null); } };
     window.addEventListener('keydown', closeMenu);
@@ -104,12 +126,10 @@ export default function Home() {
     <section className={`chapter film ${filmCategory ? 'has-gallery' : ''} ${chapter === 'film' ? 'active' : ''}`} aria-hidden={chapter !== 'film'}>
       <button className="back" onClick={() => { setPreview(null); if (filmCategory) { setFilmCategory(null); setReel('documentary'); } else enter('home'); }}><ArrowLeft /> BACK</button>
       {filmCategory ? <div className={`film-detail ${filmCategory === 'narrative' ? 'narrative-detail' : ''}`} key={filmCategory}>
-        <p className="production-line">{filmCategory === 'documentary' ? 'DOCUMENTARY' : 'NARRATIVE'} PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p>
-        <h2>{filmCategory === 'documentary' ? 'DOCUMENTARIES' : <>FEATURE FILMS<br /><em>+</em> SHORT FILMS</>}</h2>
-        <p className="film-capability">{filmCategory === 'documentary' ? 'Compelling documentaries, crafted with you from development through final cut.' : 'Bold narrative films, brought from concept to screen with you.'}</p>
-        {filmCategory === 'documentary' ? <div className="film-proof project-strip" ref={documentaryGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Documentary projects - scroll horizontally" onScroll={() => showPreview(null)} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(documentaryGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.documentary)}</div> : <div className="narrative-rows">
-          <section className="film-row" aria-labelledby="feature-films-title"><div className="film-row-header"><h3 id="feature-films-title">FEATURE FILMS</h3></div><div className="film-proof project-strip" ref={featureGallery} tabIndex={0} role="region" aria-label="Feature film projects - scroll horizontally" onScroll={() => showPreview(null)} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(featureGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.feature)}</div></section>
-          <section className="film-row" aria-labelledby="short-films-title"><div className="film-row-header"><h3 id="short-films-title">SHORT FILMS</h3><div className="gallery-controls">{shortNavigation.back && <button onClick={() => scrollGallery(shortGallery.current, -1)} aria-label="Previous short films"><ArrowLeft /></button>}{shortNavigation.forward && <button onClick={() => scrollGallery(shortGallery.current, 1)} aria-label="Next short films"><ArrowRight /></button>}</div></div><div className="film-proof project-strip" ref={shortGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Short film projects - scroll horizontally" onScroll={() => { showPreview(null); updateShortNavigation(); }} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(shortGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.short)}</div></section>
+        {filmCategory === 'documentary' && <><p className="production-line">DOCUMENTARY PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p><h2>DOCUMENTARIES</h2><p className="film-capability">Compelling documentaries, crafted with you from development through final cut.</p></>}
+        {filmCategory === 'documentary' ? <div className="film-proof project-strip" ref={documentaryGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Documentary projects - scroll horizontally" onScroll={() => handleGalleryScroll()} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(documentaryGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.documentary, 3)}</div> : <div className="narrative-rows">
+          <section className="film-row" aria-labelledby="feature-films-title"><div className="film-row-header"><h3 id="feature-films-title">FEATURE FILMS</h3></div><div className="film-proof project-strip" ref={featureGallery} tabIndex={0} role="region" aria-label="Feature film projects" onScroll={() => handleGalleryScroll()}>{renderProjects(filmProjects.feature, 3)}</div></section>
+          <section className="film-row" aria-labelledby="short-films-title"><div className="film-row-header"><h3 id="short-films-title">SHORT FILMS</h3><div className="gallery-controls">{shortNavigation.back && <button onClick={() => scrollGallery(shortGallery.current, -1)} aria-label="Previous short films"><ArrowLeft /></button>}{shortNavigation.forward && <button onClick={() => scrollGallery(shortGallery.current, 1)} aria-label="Next short films"><ArrowRight /></button>}</div></div><div className="film-proof project-strip" ref={shortGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Short film projects - scroll horizontally" onScroll={() => handleGalleryScroll('short')} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(shortGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.short)}</div></section>
         </div>}
         <div className="film-actions"><button className="project-cta" onClick={() => enter('contact')}>START PROJECT <ArrowUpRight /></button>{filmCategory === 'documentary' && <div className="gallery-controls"><button onClick={() => scrollGallery(documentaryGallery.current, -1)} aria-label="Previous projects"><ArrowLeft /></button><button onClick={() => scrollGallery(documentaryGallery.current, 1)} aria-label="Next projects"><ArrowRight /></button></div>}</div>
       </div> : <>
@@ -137,7 +157,7 @@ export default function Home() {
     <section className={`chapter contact ${chapter === 'contact' ? 'active' : ''}`} id="contact" aria-hidden={chapter !== 'contact'}>
       <button className="back" onClick={() => enter('home')}><ArrowLeft /> BACK</button>
       <div className="contact-copy"><p>START A CONVERSATION</p><h2>LET'S MAKE<br /><em>SOMETHING.</em></h2><address className="contact-details"><a className="contact-detail" href="https://www.google.com/maps/search/?api=1&query=22%20GLOVER%20RD%2C%20IKOYI%2C%20LAGOS" target="_blank" rel="noopener noreferrer"><MapPin aria-hidden="true" /><span>22 GLOVER RD, IKOYI, LAGOS<br />P.O. BOX 101233, LAGOS</span></a><div className="contact-detail"><Phone aria-hidden="true" /><div className="contact-phone-list"><span><a href="https://wa.me/2349029786545" target="_blank" rel="noopener noreferrer">+234 902 978 6545</a></span></div></div></address></div>
-      <form className="contact-form" aria-busy={formStatus === 'sending'} onChange={() => { if (formStatus !== 'sending') setFormStatus('idle'); }} onSubmit={async (event) => { event.preventDefault(); if (formStatus === 'sending') return; const form = event.currentTarget; const data = new FormData(form); setFormStatus('sending'); try { const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: data.get('name'), email: data.get('email'), company: data.get('company'), message: data.get('message') }) }); if (!response.ok) throw new Error('Unable to send'); form.reset(); setFormStatus('success'); } catch { setFormStatus('error'); } }} aria-describedby="form-note">
+      <form className="contact-form" aria-busy={formStatus === 'sending'} onChange={() => { if (formStatus !== 'sending') setFormStatus('idle'); }} onSubmit={async (event) => { event.preventDefault(); if (formStatus === 'sending') return; const form = event.currentTarget; const data = new FormData(form); setFormStatus('sending'); try { const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: data.get('name'), email: data.get('email'), company: data.get('company'), message: data.get('message') }) }); if (!response.ok) throw new Error('Unable to send'); form.reset(); setFormStatus('success'); } catch { setFormStatus('error'); } }}>
         <div className="form-row">
           <label htmlFor="contact-name">Name<Input id="contact-name" name="name" autoComplete="name" placeholder="Your name" required maxLength={100} /></label>
           <label htmlFor="contact-email">Email<Input id="contact-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required maxLength={254} /></label>
@@ -145,7 +165,6 @@ export default function Home() {
         <label htmlFor="contact-company">Company <span>(optional)</span><Input id="contact-company" name="company" autoComplete="organization" placeholder="Company or organisation" maxLength={100} /></label>
         <label htmlFor="contact-message">Tell us about your project<Textarea id="contact-message" name="message" placeholder="The story, the idea, the experience..." required minLength={10} maxLength={3000} rows={4} /></label>
         <Button type="submit" className="form-submit" disabled={formStatus === 'sending'}>{formStatus === 'sending' ? 'SENDING…' : 'SEND MESSAGE'} <ArrowUpRight /></Button>
-        <p id="form-note" className="form-note">Your message will be sent directly to OAE.</p>
         <div aria-live="polite">{formStatus === 'success' && <p className="form-status" role="status">Thank you. Your message has been sent.</p>}{formStatus === 'error' && <p className="form-status form-error" role="alert">We couldn't send your message. Please try again.</p>}</div>
       </form>
     </section>

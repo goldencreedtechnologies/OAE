@@ -1,4 +1,4 @@
-export const logos = { welcome: '/images/OAE Logo Transparent.png', navigation: '/images/OAE Logo Transparent.png' };
+export const logos = { welcome: '/images/OAE Logo New.png', navigation: '/images/OAE Logo New.png' };
 export const projects: { name: string; kicker: string; description: string; href: string; image: string; logo?: string }[] = [
   { name: 'ỌNUỌRA MENSWEAR', kicker: 'Design', description: 'Contemporary menswear grounded in African identity.', href: 'https://onuoramenswear.com', image: '/images/onuora-hero.png', logo: '/media/onuoramenswear-logo.png' },
   { name: 'ABIBITUMI FILM FESTIVAL', kicker: 'Cinema', description: 'A gathering for bold stories, filmmakers and audiences.', href: 'https://filmfestival.abibifahodie.org', image: '/media/film festival.png', logo: '/media/Abibitumi-300x300.webp' },

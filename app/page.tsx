@@ -138,7 +138,7 @@ export default function Home() {
 
     <section className={`chapter film ${filmCategory ? 'has-gallery' : ''} ${chapter === 'film' ? 'active' : ''}`} aria-hidden={chapter !== 'film'}>
       <button className="back" onClick={() => { setPreview(null); if (filmCategory) { setFilmCategory(null); setReel('documentary'); } else enter('home'); }}><ArrowLeft /> BACK</button>
-      {filmCategory ? <div className={`film-detail ${filmCategory === 'narrative' ? 'narrative-detail' : ''}`} key={filmCategory}>
+      {filmCategory ? <div className={`film-detail ${filmCategory === 'narrative' ? 'narrative-detail' : 'documentary-detail'}`} key={filmCategory}>
         {filmCategory === 'documentary' && <><p className="production-line">DOCUMENTARY PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p><h2>DOCUMENTARIES</h2><p className="film-capability">Compelling documentaries, crafted with you from development through final cut.</p></>}
         {filmCategory === 'narrative' && <div className="narrative-header"><p className="production-line">NARRATIVE PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p><h2>FEATURE FILMS <em>+</em> SHORT FILMS</h2></div>}
         {filmCategory === 'documentary' ? <div className="film-proof project-strip" ref={documentaryGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Documentary projects - scroll horizontally" onScroll={() => handleGalleryScroll()} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(documentaryGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.documentary, 3)}</div> : <div className="narrative-rows">

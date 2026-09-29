@@ -1,4 +1,4 @@
-const contactRecipient = 'charles@onuoraenterprises.com';
+const contactRecipient = 'onuora@onuoraenterprises.com';
 
 type ContactSubmission = {
   name?: unknown;

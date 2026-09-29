@@ -297,8 +297,6 @@ footer { grid-template-columns: 1fr 1fr; }
   .film-row-header { margin-bottom: 16px; }
   .narrative-rows .film-proof { overflow-y: visible; }
   .narrative-rows .project-strip article { flex-basis: clamp(260px, 31vw, 440px); }
-  .narrative-rows .film-row:first-child .film-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
-  .narrative-rows .film-row:first-child .project-strip article { width: auto; }
 }
 @media (max-width: 600px) {
   .has-gallery .film-detail { display: block; height: auto; min-height: 0; }

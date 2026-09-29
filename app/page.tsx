@@ -45,6 +45,7 @@ export default function Home() {
   const shortGallery = useRef<HTMLDivElement>(null);
   const galleryScrollFrame = useRef<number | null>(null);
   const previewTimer = useRef<number | null>(null);
+  const [featureNavigation, setFeatureNavigation] = useState({ back: false, forward: true });
   const [shortNavigation, setShortNavigation] = useState({ back: false, forward: true });
   const scrollGallery = (track: HTMLDivElement | null, direction: number) => {
     if (track) track.scrollBy({ left: direction * track.clientWidth * .75, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
@@ -59,12 +60,23 @@ export default function Home() {
     };
     setShortNavigation((current) => current.back === next.back && current.forward === next.forward ? current : next);
   };
+  const updateFeatureNavigation = () => {
+    const track = featureGallery.current;
+    if (!track) return;
+    const tolerance = 4;
+    const next = {
+      back: track.scrollLeft > tolerance,
+      forward: track.scrollLeft + track.clientWidth < track.scrollWidth - tolerance,
+    };
+    setFeatureNavigation((current) => current.back === next.back && current.forward === next.forward ? current : next);
+  };
   useEffect(() => {
     if (filmCategory !== 'narrative') return;
-    const frame = window.requestAnimationFrame(updateShortNavigation);
-    const track = shortGallery.current;
-    const observer = new ResizeObserver(updateShortNavigation);
-    if (track) observer.observe(track);
+    const updateNavigation = () => { updateFeatureNavigation(); updateShortNavigation(); };
+    const frame = window.requestAnimationFrame(updateNavigation);
+    const observer = new ResizeObserver(updateNavigation);
+    if (featureGallery.current) observer.observe(featureGallery.current);
+    if (shortGallery.current) observer.observe(shortGallery.current);
     return () => {
       window.cancelAnimationFrame(frame);
       observer.disconnect();
@@ -79,11 +91,12 @@ export default function Home() {
     if (previewTimer.current !== null) { window.clearTimeout(previewTimer.current); previewTimer.current = null; }
     if (preview !== null || previewReady) showPreview(null);
   };
-  const handleGalleryScroll = (track?: 'short') => {
+  const handleGalleryScroll = (track?: 'feature' | 'short') => {
     if (galleryScrollFrame.current !== null) return;
     galleryScrollFrame.current = window.requestAnimationFrame(() => {
       galleryScrollFrame.current = null;
       clearPreview();
+      if (track === 'feature') updateFeatureNavigation();
       if (track === 'short') updateShortNavigation();
     });
   };
@@ -129,7 +142,7 @@ export default function Home() {
         {filmCategory === 'documentary' && <><p className="production-line">DOCUMENTARY PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p><h2>DOCUMENTARIES</h2><p className="film-capability">Compelling documentaries, crafted with you from development through final cut.</p></>}
         {filmCategory === 'narrative' && <div className="narrative-header"><p className="production-line">NARRATIVE PRODUCTION — FROM DEVELOPMENT TO FINAL CUT.</p><h2>FEATURE FILMS <em>+</em> SHORT FILMS</h2></div>}
         {filmCategory === 'documentary' ? <div className="film-proof project-strip" ref={documentaryGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Documentary projects - scroll horizontally" onScroll={() => handleGalleryScroll()} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(documentaryGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.documentary, 3)}</div> : <div className="narrative-rows">
-          <section className="film-row" aria-labelledby="feature-films-title"><div className="film-row-header"><h3 id="feature-films-title">FEATURE FILMS</h3></div><div className="film-proof project-strip" ref={featureGallery} tabIndex={0} role="region" aria-label="Feature film projects" onScroll={() => handleGalleryScroll()}>{renderProjects(filmProjects.feature, 3)}</div></section>
+          <section className="film-row" aria-labelledby="feature-films-title"><div className="film-row-header"><h3 id="feature-films-title">FEATURE FILMS</h3><div className="gallery-controls">{featureNavigation.back && <button onClick={() => scrollGallery(featureGallery.current, -1)} aria-label="Previous feature films"><ArrowLeft /></button>}{featureNavigation.forward && <button onClick={() => scrollGallery(featureGallery.current, 1)} aria-label="Next feature films"><ArrowRight /></button>}</div></div><div className="film-proof project-strip" ref={featureGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Feature film projects - scroll horizontally" onScroll={() => handleGalleryScroll('feature')} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(featureGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.feature, 3)}</div></section>
           <section className="film-row" aria-labelledby="short-films-title"><div className="film-row-header"><h3 id="short-films-title">SHORT FILMS</h3><div className="gallery-controls">{shortNavigation.back && <button onClick={() => scrollGallery(shortGallery.current, -1)} aria-label="Previous short films"><ArrowLeft /></button>}{shortNavigation.forward && <button onClick={() => scrollGallery(shortGallery.current, 1)} aria-label="Next short films"><ArrowRight /></button>}</div></div><div className="film-proof project-strip" ref={shortGallery} tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Short film projects - scroll horizontally" onScroll={() => handleGalleryScroll('short')} onKeyDown={(event) => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); scrollGallery(shortGallery.current, event.key === 'ArrowRight' ? 1 : -1); } }}>{renderProjects(filmProjects.short)}</div></section>
         </div>}
         <div className="film-actions"><button className="project-cta" onClick={() => enter('contact')}>START PROJECT <ArrowUpRight /></button>{filmCategory === 'documentary' && <div className="gallery-controls"><button onClick={() => scrollGallery(documentaryGallery.current, -1)} aria-label="Previous projects"><ArrowLeft /></button><button onClick={() => scrollGallery(documentaryGallery.current, 1)} aria-label="Next projects"><ArrowRight /></button></div>}</div>

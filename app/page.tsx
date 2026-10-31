@@ -116,6 +116,16 @@ export default function Home() {
     return () => window.removeEventListener('keydown', closeMenu);
   }, []);
   useEffect(() => { const id = window.setTimeout(() => setIntro(false), 1150); return () => window.clearTimeout(id); }, []);
+  useEffect(() => {
+    const destination = window.location.hash.slice(1);
+    if (destination === 'film' || destination === 'about' || destination === 'contact') {
+      setChapter(destination);
+      setFilmCategory(null);
+      setPreview(null);
+      setLegalPage(null);
+      setReel(destination === 'film' ? 'documentary' : 'superTrailer');
+    }
+  }, []);
   const enter = (next: Chapter) => { setChapter(next); setMenuOpen(false); setFilmCategory(null); setPreview(null); setLegalPage(null); setReel(next === 'film' ? 'documentary' : 'superTrailer'); };
   const openFilm = (category: 'documentary' | 'narrative') => { setFilmCategory(category); setPreview(null); setReel(category); };
 

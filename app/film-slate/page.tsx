@@ -82,7 +82,7 @@ export default function FilmSlatePage() {
               />
             </div>
             <div className={styles.projectIdentity}>
-              <h2 id={`${project.slug}-title`}><em className={styles.filmTitle}>{project.title}</em></h2>
+              <h2 id={`${project.slug}-title`}>{project.title}</h2>
               <dl>
                 <div><dt>GENRE</dt><dd>{project.genre}</dd></div>
                 <div><dt>STATUS</dt><dd>{project.status}</dd></div>

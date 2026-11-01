@@ -14,11 +14,11 @@ export type FilmSlateProject = {
 export const filmSlateProjects: FilmSlateProject[] = [
   {
     slug: 'catching-a-thief',
-    title: 'Catching a Thief',
+    title: 'Catching A Thief',
     genre: 'Action Thriller / Espionage',
     status: 'Final Stages of Post-Production',
     synopsis:
-      'Inspired by the 1984 Dikko Affair, Catching a Thief follows a covert operation involving Nigerian intelligence and Mossad agents tasked with capturing a fugitive former minister in London. With just 48 hours to execute the mission, the team faces growing threats and the possibility of betrayal from within.',
+      'Inspired by the 1984 Dikko Affair, Catching A Thief follows a covert operation involving Nigerian intelligence and Mossad agents tasked with capturing a fugitive former minister in London. With just 48 hours to execute the mission, the team faces growing threats and the possibility of betrayal from within.',
     artwork: '/media/catching-a-thief-slate.webp',
     teaserPoster: '/media/Catching a Thief Thumbnail.webp',
     vimeoId: '1231032122',

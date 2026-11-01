@@ -1,6 +1,6 @@
+/* oxlint-disable next/no-html-link-for-pages -- Vinext's production Link handler blocks normal Film Slate navigation. */
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
 import { ArrowUpRight, Download, Mail, Menu } from 'lucide-react';
 import { filmSlateProjects } from '@/data/film-slate';
 import { logos } from '@/data/site';
@@ -47,16 +47,16 @@ export default function FilmSlatePage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link className={styles.wordmark} href="/" aria-label="OAE home">
+        <a className={styles.wordmark} href="/" aria-label="OAE home">
           <Image src={logos.navigation} alt="OAE" width={1254} height={1254} priority />
-        </Link>
+        </a>
         <nav className={styles.desktopNav} aria-label="Primary navigation">
-          {navigation.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
+          {navigation.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
         </nav>
         <details className={styles.mobileNav}>
           <summary aria-label="Open navigation"><Menu aria-hidden="true" /></summary>
           <nav aria-label="Mobile navigation">
-            {navigation.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
+            {navigation.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
           </nav>
         </details>
       </header>
